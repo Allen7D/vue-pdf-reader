@@ -1,0 +1,7 @@
+node_modules
+/dist
+
+# Editor directories and files
+.DS_Store
+.idea
+.vscode

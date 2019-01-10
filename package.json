@@ -1,0 +1,60 @@
+{
+  "name": "vue-pdf-reader",
+  "version": "1.0.0",
+  "description": "This code is offered as a component to render PDF with text layer in web by using Vue.js and PDF.js.",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Alimazing/vue-pdf-reader.git"
+  },
+  "author": "Alimazing",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Alimazing/vue-pdf-reader/issues"
+  },
+  "homepage": "https://github.com/Alimazing/vue-pdf-reader#readme",
+  "dependencies": {
+    "lodash": "^4.17.11",
+    "pdfjs-dist": "^2.0.943",
+    "vue": "^2.5.21"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.2.0",
+    "@vue/cli-plugin-eslint": "^3.2.0",
+    "@vue/cli-service": "^3.2.0",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.8.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "vue-template-compiler": "^2.5.21"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "rules": {},
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ]
+}
