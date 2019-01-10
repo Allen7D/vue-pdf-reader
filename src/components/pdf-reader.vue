@@ -129,7 +129,9 @@
         this.PDFDoc = await PDFJS.getDocument(url)
       },
       setCurrentPage(PageNum) {
-        if (this.focusPageNum <= 1 || this.focusPageNum >= this.pageSize) return
+        if (PageNum < 1 || PageNum > this.pageSize) return
+        this.$refs['viewer'].scrollTop = this.pages[PageNum].pageTop
+
       },
       onPrevPage() {
         if (this.focusPageNum <= 1) return

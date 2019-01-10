@@ -22,7 +22,7 @@ export default {
       this.height = this.actualSizeViewport.height // this.height * radio
       this.pageTop = this.$el.offsetTop
       this.renderTask = undefined
-      this.scrollTop = this.scrollTop - 0.001
+      this.renderPage()
     },
     scrollTop() {
       this.renderPage()
@@ -47,10 +47,6 @@ export default {
     })
   },
   computed: {
-    info() {
-      const {pageTop, pageBottom, pageHeight, scrollTop, scrollBottom} = this
-      return {pageTop, pageBottom, pageHeight, scrollTop, scrollBottom}
-    },
     actualSizeViewport() {
       return this.viewport.clone({scale: this.scale});
     },

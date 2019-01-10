@@ -59,11 +59,10 @@
       renderPage() {
         if (this.renderTask) return
         const {pageTop, pageBottom, scrollTop, scrollBottom} = this
-        console.log({pageTop, pageBottom, scrollTop, scrollBottom})
+        // console.log({pageTop, pageBottom, scrollTop, scrollBottom})
         // let isPageVisible = pageTop < scrollBottom && pageBottom > scrollTop
         let isPageVisible = (scrollTop-EXTRA_RANGE < pageTop  && pageTop < scrollBottom+EXTRA_RANGE) || (scrollTop-EXTRA_RANGE < pageBottom && pageBottom < scrollBottom+EXTRA_RANGE)
         if (isPageVisible) {
-          console.log('isPageVisible', isPageVisible)
 //          console.log('num', this.num)
 //          const {pageTop, pageBottom, pageHeight, scrollTop, scrollBottom} = this
 //          console.log({pageTop, pageBottom, pageHeight, scrollTop, scrollBottom})

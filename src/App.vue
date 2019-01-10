@@ -2,6 +2,10 @@
   <div id="app" style="height: 100%;">
     <div style="position: fixed; top: 50px; left: 20px;z-index: 2;">
       <p>
+        <input type="text" v-model="pageNum">
+        <span> / {{ 14 }}</span>
+      </p>
+      <p>
         <button @click="handlePrevPage">上一页</button>
         <button @click="handleNextPage">下一页</button>
       </p>
@@ -24,15 +28,21 @@
     },
     data() {
       return {
+        pageNum: 1,
         url: 'http://0.0.0.0:5010/static/files/example.pdf'
         // url: 'https://cdn.filestackcontent.com/wcrjf9qPTCKXV3hMXDwK'
       }
     },
+    watch: {
+      pageNum(newVal) {
+        this.handleSetCurrentPage(newVal)
+      }
+    },
     methods: {
+      handleSetCurrentPage(PageNum) {
+        this.$refs['pdf'].setCurrentPage(PageNum)
+      },
       handlePrevPage() {
-        this.$refs['pdf'].pages.forEach(page => {
-          console.log('page', page.$el.offsetTop)
-        })
         this.$refs['pdf'].onPrevPage()
       },
       handleNextPage() {
