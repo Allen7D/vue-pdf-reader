@@ -29,8 +29,7 @@
     data() {
       return {
         pageNum: 1,
-        url: 'http://localhost:5020/api/pdf'
-        // url: 'http://0.0.0.0:5010/static/files/example.pdf'
+        url: 'http://0.0.0.0:5010/static/files/example.pdf'
         // url: 'https://cdn.filestackcontent.com/wcrjf9qPTCKXV3hMXDwK'
       }
     },

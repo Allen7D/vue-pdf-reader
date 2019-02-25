@@ -50,12 +50,14 @@
 
 .textLayer .endOfContent {
   display: block;
+
   position: absolute;
   left: 0px;
   top: 100%;
   right: 0px;
   bottom: 0px;
   z-index: -1;
+
   cursor: default;
   -webkit-user-select: none;
   -ms-user-select: none;
@@ -73,11 +75,13 @@
 
 .annotationLayer .linkAnnotation > a {
   position: absolute;
-  font-size: 1em;
+
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+
+  font-size: 1em;
 }
 
 .annotationLayer .linkAnnotation > a /* -ms-a */  {
@@ -102,15 +106,19 @@
 
 .annotationLayer .popup {
   position: absolute;
-  z-index: 200;
   max-width: 20em;
-  background-color: #FFFF99;
+  z-index: 200;
+
   box-shadow: 0px 2px 5px #333;
   border-radius: 2px;
   padding: 0.6em;
   margin-left: 5px;
-  cursor: pointer;
+
+  background-color: #FFFF99;
+
   word-wrap: break-word;
+
+  cursor: pointer;
 }
 
 .annotationLayer .popup h1 {
@@ -136,15 +144,18 @@
 }
 
 .pdfViewer .page {
-  direction: ltr;
+  overflow: visible;
+
+  position: relative;
   width: 816px;
   height: 1056px;
   margin: 1px auto -8px auto;
-  position: relative;
-  overflow: visible;
   border: 9px solid transparent;
+
   background-clip: content-box;
   background-color: white;
+
+  direction: ltr;
 }
 
 .pdfViewer.removePageBorders .page {
@@ -158,12 +169,13 @@
 }
 
 .pdfViewer .page .loadingIcon {
-  position: absolute;
   display: block;
-  left: 0;
+
+  position: absolute;
   top: 0;
-  right: 0;
   bottom: 0;
+  left: 0;
+  right: 0;
 }
 
 .pdfPresentationMode:-webkit-full-screen .pdfViewer .page {

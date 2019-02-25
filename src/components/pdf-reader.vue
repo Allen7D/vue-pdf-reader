@@ -16,6 +16,9 @@
   import PageComponent from './extend'
   const PageConstructor = Vue.extend(PageComponent)
 
+  const PIXEL_RATIO = window.devicePixelRatio || 1,
+    VIEWPORT_RATIO = 0.98
+
   function getPDFPage(PDFDoc, pageNum) {
     return new Promise(function (resolve, reject) {
       PDFDoc.getPage(pageNum).then(PDFPage => resolve(PDFPage))
@@ -28,7 +31,7 @@
     const allPages = range(1, pageSize+1).map(index => PDFDoc.getPage(index))
     return Promise.all(allPages)
   }
-  // 渲染出文字
+  // 渲染出文字(废弃)
   function renderTextLayer(PDFPage, pageNum, container, viewport) {
     PDFPage.getTextContent().then(textContent => {
       PDFJS.renderTextLayer({
@@ -65,26 +68,45 @@
       }
     },
     computed: {
+      defaultViewport() {
+        if (!this.pages.length) return {width: 0, height:0}
+        const [page] = this.pages
+
+        return page.getViewport(1.0)
+      },
       pageSize() {
         return this.PDFDoc ? this.PDFDoc._pdfInfo.numPages : 0
       },
       scrollBottom() {
         return this.scrollTop + this.clientHeight
       },
+      pagesRenderList() {
+        return this.pages.map(page => page.isRendered)
+      }
     },
     watch: {
       scale(newVal, oldVal) {
         this.pages.forEach(page => {
           page.scale = newVal
         })
+      },
+      pagesRenderList(newVal, oldVal) {
+        console.log('watch', newVal)
       }
     },
     mounted() {
       this.generateBlankPages(this.url)
     },
     methods: {
+      pageWidthScale() {
+        const {defaultViewport, $el} = this
+        if (!defaultViewport.width) return 0
+        console.log('($el.clientWidth * PIXEL_RATIO) * VIEWPORT_RATIO / defaultViewport.width', ($el.clientWidth * PIXEL_RATIO) * VIEWPORT_RATIO / defaultViewport.width)
+        return ($el.clientWidth * PIXEL_RATIO) * VIEWPORT_RATIO / defaultViewport.width
+
+      },
       fitWidth() {
-        console.log('fitWidth')
+        const scale = this.pageWidthScale()
       },
       updatePageGeom() {
         this.pages.forEach(page => {
@@ -106,7 +128,6 @@
         this.PDFPages = await getAllPDFPages(this.PDFDoc)
 
         let viewer = this.$refs['viewer']
-        const viewport = this.PDFPages[0].getViewport(this.scale)
         range(1, this.pageSize+1).forEach(index => {
           const page = new PageConstructor({
             propsData: {
@@ -128,14 +149,19 @@
       async renderPDF(url){
         this.PDFDoc = await PDFJS.getDocument(url)
       },
-      setCurrentPage(PageNum) {
-        if (PageNum < 1 || PageNum > this.pageSize) return
-        this.$refs['viewer'].scrollTop = this.pages[PageNum].pageTop
+      setCurrentPage(pageNum) {
+        if (pageNum < 1 || pageNum > this.pageSize) return
+        const pageIndex = pageNum - 1
+        this.$refs['viewer'].scrollTop = this.pages[pageIndex].pageTop
 
       },
       onPrevPage() {
-        if (this.focusPageNum <= 1) return
-        this.focusPageNum -= 1
+//        if (this.focusPageNum <= 1) return
+//        this.focusPageNum -= 1
+        console.log('pagesRenderList', this.pagesRenderList)
+//        this.pages.forEach(page => {
+//          console.log('isRendered', page.num, page.isRendered)
+//        })
       },
       onNextPage() {
         if (this.focusPageNum >= this.pageSize) return
@@ -156,23 +182,26 @@
 
 <style scoped>
   .container {
-    position: absolute;
     overflow: auto;
-    z-index: 1;
+
+    position: absolute;
     top: 0;
+    bottom: 0;
     left: 0;
     right: 0;
-    bottom: 0;
+    z-index: 1;
   }
 
   #viewer {
-    position: absolute;
     overflow: auto;
-    width: 100%;
+
+    position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
+    width: 100%;
+
     background: #525f69;
   }
 

@@ -4,6 +4,7 @@ export default {
   extends: Page,
   data() {
     return {
+      isRendered: false,
       renderTask: undefined,
       width: 0,
       height: 0,
@@ -22,6 +23,7 @@ export default {
       this.height = this.actualSizeViewport.height // this.height * radio
       this.pageTop = this.$el.offsetTop
       this.renderTask = undefined
+      this.isRendered = false
       this.renderPage()
     },
     scrollTop() {

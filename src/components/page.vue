@@ -10,7 +10,7 @@
 
 <script type="text/ecmascript-6">
   import PDFJS from 'pdfjs-dist'
-  const EXTRA_RANGE = 3000
+  const EXTRA_RANGE = 2000
   export default {
     name: 'Page',
     props: {
@@ -42,6 +42,9 @@
       textLayer() {
         return this.$el.querySelector('.textLayer')
       },
+      viewport() {
+        return this.page.getViewport(this.scale)
+      },
       eleId() {
         return `pageContainer${this._uid}`
       },
@@ -68,23 +71,29 @@
 //          console.log({pageTop, pageBottom, pageHeight, scrollTop, scrollBottom})
           this.renderContext()
           this.renderTextLayer()
+          this.isRendered = true
         }
       },
+      /**
+       * 渲染Canvas：在网页上将PDF对应的页面逐一画出
+       */
       renderContext() {
         let canvas = this.$refs['canvas'],
-          ctx = this.canvas.getContext("2d")
+          canvasContext = this.canvas.getContext("2d")
         const viewport = this.page.getViewport(this.scale)
         // 放缩 scale的比例与 viewport.height & viewport.width一致
         canvas.height = viewport.height
         canvas.width = viewport.width
         const renderContext = {
-          canvasContext: ctx,
-          viewport: viewport
+          canvasContext,
+          viewport
         }
         this.renderTask = this.page.render(renderContext)
         return this.renderTask
       },
-      // 渲染出文字
+      /**
+       * 渲染文字：在Canvas上浮一层对应的文字
+       */
       renderTextLayer() {
         const container = this.textLayer
         container.innerHTML = ''
@@ -104,10 +113,13 @@
 
 <style scoped>
   .page {
+    overflow: visible;
+
+    position: relative;
+
     margin: 10px auto;
+
     background-color: black;
     background-clip: content-box;
-    position: relative;
-    overflow: visible;
   }
 </style>
