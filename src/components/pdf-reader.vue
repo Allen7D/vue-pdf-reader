@@ -11,6 +11,7 @@
   import Vue from 'vue'
   import range from 'lodash/range'
 
+  import autoSize from './mixins'
   import resize from '../directives/resize'
   import scroll from '../directives/scroll'
   import PageComponent from './extend'
@@ -49,6 +50,7 @@
       resize,
       scroll,
     },
+    mixins: [autoSize],
     props: {
       url: {
         type: String,
@@ -184,7 +186,7 @@
   .container {
     overflow: auto;
 
-    position: absolute;
+    position: relative;
     top: 0;
     bottom: 0;
     left: 0;
