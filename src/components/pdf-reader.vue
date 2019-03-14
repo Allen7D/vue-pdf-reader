@@ -13,8 +13,9 @@
 
   import resize from '../directives/resize'
   import scroll from '../directives/scroll'
-  import PageComponent from './extend'
-  const PageConstructor = Vue.extend(PageComponent)
+
+  import PageComponent from './extend' // PageComponent是一个包含「组件选项」的对象
+  const PageConstructor = Vue.extend(PageComponent) // 使用「基础 Vue 构造器」创建一个"子类"（可以用于实例化）
 
   const PIXEL_RATIO = window.devicePixelRatio || 1,
     VIEWPORT_RATIO = 0.98
@@ -130,7 +131,7 @@
         let viewer = this.$refs['viewer']
         range(1, this.pageSize+1).forEach(index => {
           const page = new PageConstructor({
-            propsData: {
+            propsData: { // 只用于 new 创建的实例中
               page: this.PDFPages[index-1],
               focusPageNum: this.focusPageNum,
               num: index,
@@ -138,7 +139,8 @@
             }
           })
           page.id = `page_${this.seed++}`
-          page.vm = page.$mount()
+          page.vm = page.$mount() // 手动地挂载; 额外添加vm属性
+          console.log()
           page.scrollTop = this.scrollTop
           page.scrollBottom = this.scrollBottom
           page.clientHeight = this.clientHeight
