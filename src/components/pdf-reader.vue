@@ -1,5 +1,5 @@
 <template>
-  <div id="viewerContainer" class="container" v-resize="fitWidth">
+  <div id="viewerContainer" class="container" >
     <div class="pdfViewer" id="viewer"
          ref="viewer" v-scroll.immediate="updateScrollBounds">
     </div>
@@ -71,12 +71,12 @@
       }
     },
     computed: {
-      defaultViewport() {
-        if (!this.pages.length) return {width: 0, height:0}
-        const [page] = this.pages
-
-        return page.getViewport(1.0)
-      },
+      // defaultViewport() {
+      //   if (!this.pages.length) return {width: 0, height:0}
+      //   const [page] = this.pages
+      //   console.log(page)
+      //   return page.getViewport(1.0)
+      // },
       pageSize() {
         return this.PDFDoc ? this.PDFDoc._pdfInfo.numPages : 0
       },
@@ -101,16 +101,16 @@
       this.generateBlankPages(this.url)
     },
     methods: {
-      pageWidthScale() {
-        const {defaultViewport, $el} = this
-        if (!defaultViewport.width) return 0
-        console.log('($el.clientWidth * PIXEL_RATIO) * VIEWPORT_RATIO / defaultViewport.width', ($el.clientWidth * PIXEL_RATIO) * VIEWPORT_RATIO / defaultViewport.width)
-        return ($el.clientWidth * PIXEL_RATIO) * VIEWPORT_RATIO / defaultViewport.width
-
-      },
-      fitWidth() {
-        const scale = this.pageWidthScale()
-      },
+      // pageWidthScale() {
+      //   const {defaultViewport, $el} = this
+      //   if (!defaultViewport.width) return 0
+      //   console.log('($el.clientWidth * PIXEL_RATIO) * VIEWPORT_RATIO / defaultViewport.width', ($el.clientWidth * PIXEL_RATIO) * VIEWPORT_RATIO / defaultViewport.width)
+      //   return ($el.clientWidth * PIXEL_RATIO) * VIEWPORT_RATIO / defaultViewport.width
+      //
+      // },
+      // fitWidth() {
+      //   const scale = this.pageWidthScale()
+      // },
       updatePageGeom() {
         this.pages.forEach(page => {
           page.scrollTop = this.scrollTop

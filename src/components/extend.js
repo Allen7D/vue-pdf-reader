@@ -34,7 +34,7 @@ export default {
     },
   },
   created() {
-    this.viewport = this.page.getViewport(this.scale)
+    // this.viewport = this.page.getViewport(this.scale)
     this.width = this.viewport.width
     this.height = this.viewport.height
   },

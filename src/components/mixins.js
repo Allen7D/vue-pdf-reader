@@ -1,3 +1,5 @@
+import { debounce } from 'lodash'
+
 export default {
     props: {
         autoSize: {
@@ -8,7 +10,7 @@ export default {
     data() {
         return {
             defaultWidth: 612,
-            defaultScale: 1.0
+            defaultScale: 1.0,
         }
     },
     computed: {
@@ -20,12 +22,16 @@ export default {
     mounted() {
         if (this.containerWidth && this.autoSize) {
             this.scale = this.defaultScale * ((this.containerWidth - 40) / this.defaultWidth).toFixed(2)
-            window.onresize = () => {
-                return (() => {
-                    const currentwidth = document.getElementById('viewerContainer').clientWidth
-                    this.scale = this.defaultScale * ((currentwidth - 40) / this.defaultWidth).toFixed(2)
-                })()
-            }
+            window.addEventListener('resize', debounce(this.resizePdf, 100))
+        }
+    },
+    beforeDestory() {
+        window.removeEventListener('resize', this.resizePdf)
+    },
+    methods: {
+        resizePdf() {
+            const currentwidth = document.getElementById('viewerContainer').clientWidth
+            this.scale = this.defaultScale * ((currentwidth - 40) / this.defaultWidth).toFixed(2)
         }
     }
 }
