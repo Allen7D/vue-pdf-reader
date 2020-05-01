@@ -1,5 +1,5 @@
 <template>
-  <div id="viewerContainer" class="container" v-resize="fitWidth">
+  <div id="viewerContainer" class="container" >
     <div class="pdfViewer" id="viewer"
          ref="viewer" v-scroll.immediate="updateScrollBounds">
     </div>
@@ -11,10 +11,12 @@
   import Vue from 'vue'
   import range from 'lodash/range'
 
+  import autoSize from './mixins'
   import resize from '../directives/resize'
   import scroll from '../directives/scroll'
-  import PageComponent from './extend'
-  const PageConstructor = Vue.extend(PageComponent)
+
+  import PageComponent from './extend' // PageComponent是一个包含「组件选项」的对象
+  const PageConstructor = Vue.extend(PageComponent) // 使用「基础 Vue 构造器」创建一个"子类"（可以用于实例化）
 
   const PIXEL_RATIO = window.devicePixelRatio || 1,
     VIEWPORT_RATIO = 0.98
@@ -49,6 +51,7 @@
       resize,
       scroll,
     },
+    mixins: [autoSize],
     props: {
       url: {
         type: String,
@@ -68,12 +71,12 @@
       }
     },
     computed: {
-      defaultViewport() {
-        if (!this.pages.length) return {width: 0, height:0}
-        const [page] = this.pages
-
-        return page.getViewport(1.0)
-      },
+      // defaultViewport() {
+      //   if (!this.pages.length) return {width: 0, height:0}
+      //   const [page] = this.pages
+      //   console.log(page)
+      //   return page.getViewport(1.0)
+      // },
       pageSize() {
         return this.PDFDoc ? this.PDFDoc._pdfInfo.numPages : 0
       },
@@ -98,16 +101,16 @@
       this.generateBlankPages(this.url)
     },
     methods: {
-      pageWidthScale() {
-        const {defaultViewport, $el} = this
-        if (!defaultViewport.width) return 0
-        console.log('($el.clientWidth * PIXEL_RATIO) * VIEWPORT_RATIO / defaultViewport.width', ($el.clientWidth * PIXEL_RATIO) * VIEWPORT_RATIO / defaultViewport.width)
-        return ($el.clientWidth * PIXEL_RATIO) * VIEWPORT_RATIO / defaultViewport.width
-
-      },
-      fitWidth() {
-        const scale = this.pageWidthScale()
-      },
+      // pageWidthScale() {
+      //   const {defaultViewport, $el} = this
+      //   if (!defaultViewport.width) return 0
+      //   console.log('($el.clientWidth * PIXEL_RATIO) * VIEWPORT_RATIO / defaultViewport.width', ($el.clientWidth * PIXEL_RATIO) * VIEWPORT_RATIO / defaultViewport.width)
+      //   return ($el.clientWidth * PIXEL_RATIO) * VIEWPORT_RATIO / defaultViewport.width
+      //
+      // },
+      // fitWidth() {
+      //   const scale = this.pageWidthScale()
+      // },
       updatePageGeom() {
         this.pages.forEach(page => {
           page.scrollTop = this.scrollTop
@@ -130,7 +133,7 @@
         let viewer = this.$refs['viewer']
         range(1, this.pageSize+1).forEach(index => {
           const page = new PageConstructor({
-            propsData: {
+            propsData: { // 只用于 new 创建的实例中
               page: this.PDFPages[index-1],
               focusPageNum: this.focusPageNum,
               num: index,
@@ -138,7 +141,8 @@
             }
           })
           page.id = `page_${this.seed++}`
-          page.vm = page.$mount()
+          page.vm = page.$mount() // 手动地挂载; 额外添加vm属性
+          console.log()
           page.scrollTop = this.scrollTop
           page.scrollBottom = this.scrollBottom
           page.clientHeight = this.clientHeight
@@ -184,7 +188,7 @@
   .container {
     overflow: auto;
 
-    position: absolute;
+    position: relative;
     top: 0;
     bottom: 0;
     left: 0;

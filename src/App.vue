@@ -14,7 +14,7 @@
         <button @click="handleZoomOut">缩小</button>
       </p>
     </div>
-    <pdf-reader ref="pdf" :url="url" style="height: 100%; overflow:hidden;"/>
+      <pdf-reader ref="pdf" :url="url"  auto-size style="height: 100%; overflow:hidden;"/>
   </div>
 </template>
 
