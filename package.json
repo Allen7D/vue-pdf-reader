@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/Alimazing/vue-pdf-reader#readme",
   "dependencies": {
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.19",
     "pdfjs-dist": "^2.0.943",
     "vue": "^2.5.21"
   },
