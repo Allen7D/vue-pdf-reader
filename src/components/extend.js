@@ -1,4 +1,4 @@
-import Page from './page.vue'
+import Page from "./page.vue";
 
 export default {
   extends: Page,
@@ -12,31 +12,31 @@ export default {
       scrollTop: 0,
       scrollBottom: 0,
       clientHeight: 0
-    }
+    };
   },
   watch: {
     scale(newVal, oldVal) {
       // const radio = newVal / oldVal
       // this.width = this.width * radio
       // this.height = this.height * radio
-      this.width = this.actualSizeViewport.width // this.width * radio
-      this.height = this.actualSizeViewport.height // this.height * radio
-      this.pageTop = this.$el.offsetTop
-      this.renderTask = undefined
-      this.isRendered = false
-      this.renderPage()
+      this.width = this.actualSizeViewport.width; // this.width * radio
+      this.height = this.actualSizeViewport.height; // this.height * radio
+      this.pageTop = this.$el.offsetTop;
+      this.renderTask = undefined;
+      this.isRendered = false;
+      this.renderPage();
     },
     scrollTop() {
-      this.renderPage()
+      this.renderPage();
     },
     page(newPage, oldPage) {
-      this.destroyPage(oldPage)
-    },
+      this.destroyPage(oldPage);
+    }
   },
   created() {
     // this.viewport = this.page.getViewport(this.scale)
-    this.width = this.viewport.width
-    this.height = this.viewport.height
+    this.width = this.viewport.width;
+    this.height = this.viewport.height;
   },
   mounted() {
     // 当前页上下4页左右的都渲染
@@ -44,38 +44,38 @@ export default {
     //   this.renderPage()
     // }
     this.$nextTick(() => {
-      this.pageTop = this.$el.offsetTop // // page与顶部距离
-      this.renderPage()
-    })
+      this.pageTop = this.$el.offsetTop; // // page与顶部距离
+      this.renderPage();
+    });
   },
   computed: {
     actualSizeViewport() {
-      return this.viewport.clone({scale: this.scale});
+      return this.viewport.clone({ scale: this.scale });
     },
     pageBottom() {
-      return this.pageTop + this.pageHeight
+      return this.pageTop + this.pageHeight;
     },
     pageHeight() {
       // page的高度
-      return this.height // this.$el.clientHeight || this.$el.offsetHeight
+      return this.height; // this.$el.clientHeight || this.$el.offsetHeight
     },
     pageStyle() {
       return {
         width: `${this.width}px`,
         height: `${this.height}px`
-      }
+      };
     },
     canvasWrapperStyle() {
       return {
         width: `${this.width}px`,
         height: `${this.height}px`
-      }
+      };
     },
     textLayerStyle() {
       return {
         width: `${this.width}px`,
         height: `${this.height}px`
-      }
+      };
     }
   }
-}
+};
