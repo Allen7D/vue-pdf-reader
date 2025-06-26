@@ -1,6 +1,6 @@
 <template>
   <div id="app" style="height: 100%;">
-    <div style="position: fixed; top: 50px; left: 20px;z-index: 2;">
+    <div style="position: fixed; bottom: 50px; width: 100%; z-index: 2; background-color: rgba(0, 0, 0, 0.5);">
       <p>
         <input type="text" v-model="pageNum">
         <span> / {{ this.pageSize }}</span>
