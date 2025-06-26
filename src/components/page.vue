@@ -10,7 +10,7 @@
 
 <script type="text/ecmascript-6">
 import PDFJS from "pdfjs-dist";
-const EXTRA_RANGE = 2000;
+
 export default {
   name: "Page",
   props: {
@@ -60,22 +60,10 @@ export default {
   methods: {
     renderPage() {
       if (this.renderTask) return;
-      const { pageTop, pageBottom, scrollTop, scrollBottom } = this;
-      // console.log({pageTop, pageBottom, scrollTop, scrollBottom})
-      // let isPageVisible = pageTop < scrollBottom && pageBottom > scrollTop
-      let isPageVisible =
-        (scrollTop - EXTRA_RANGE < pageTop &&
-          pageTop < scrollBottom + EXTRA_RANGE) ||
-        (scrollTop - EXTRA_RANGE < pageBottom &&
-          pageBottom < scrollBottom + EXTRA_RANGE);
-      if (isPageVisible) {
-        //          console.log('num', this.num)
-        //          const {pageTop, pageBottom, pageHeight, scrollTop, scrollBottom} = this
-        //          console.log({pageTop, pageBottom, pageHeight, scrollTop, scrollBottom})
-        this.renderContext();
-        this.renderTextLayer();
-        this.isRendered = true;
-      }
+      // 在单页模式下，直接渲染当前页面，不需要可见性检查
+      this.renderContext();
+      this.renderTextLayer();
+      this.isRendered = true;
     },
     /**
      * 渲染Canvas：在网页上将PDF对应的页面逐一画出

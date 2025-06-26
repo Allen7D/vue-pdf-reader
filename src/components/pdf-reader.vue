@@ -14,7 +14,6 @@ import autoSize from "./mixins";
 import resize from "../directives/resize";
 import scroll from "../directives/scroll";
 
-import { range } from "../utils/index";
 
 import PageComponent from "./extend"; // PageComponent是一个包含「组件选项」的对象
 const PageConstructor = Vue.extend(PageComponent); // 使用「基础 Vue 构造器」创建一个"子类"（可以用于实例化）
@@ -22,28 +21,11 @@ const PageConstructor = Vue.extend(PageComponent); // 使用「基础 Vue 构造
 const PIXEL_RATIO = window.devicePixelRatio || 1,
   VIEWPORT_RATIO = 0.98;
 
-function getPDFPage(PDFDoc, pageNum) {
-  return new Promise(function(resolve, reject) {
-    PDFDoc.getPage(pageNum).then(PDFPage => resolve(PDFPage));
-  });
-}
-
 // 返回一个有序的数组
 function getAllPDFPages(PDFDoc) {
   const pageSize = PDFDoc._pdfInfo.numPages;
-  const allPages = range(1, pageSize + 1).map(index => PDFDoc.getPage(index));
+  const allPages = Array.from({length: pageSize}, (_, i) => PDFDoc.getPage(i + 1));
   return Promise.all(allPages);
-}
-// 渲染出文字(废弃)
-function renderTextLayer(PDFPage, pageNum, container, viewport) {
-  PDFPage.getTextContent().then(textContent => {
-    PDFJS.renderTextLayer({
-      textContent,
-      container,
-      viewport,
-      textDivs: []
-    });
-  });
 }
 
 export default {
@@ -66,18 +48,12 @@ export default {
       focusPageNum: 1,
       scale: 1.0,
       increment: 0.25,
-      pages: [],
+      currentPage: null, // 当前显示的页面组件
       scrollTop: 0, // 已经滚动的距离
       clientHeight: 0 // 当前页面高度
     };
   },
   computed: {
-    // defaultViewport() {
-    //   if (!this.pages.length) return {width: 0, height:0}
-    //   const [page] = this.pages
-    //   console.log(page)
-    //   return page.getViewport(1.0)
-    // },
     pageSize() {
       const _pageSize = this.PDFDoc ? this.PDFDoc._pdfInfo.numPages : 0;
       this.$emit("page-size", _pageSize);
@@ -85,26 +61,27 @@ export default {
     },
     scrollBottom() {
       return this.scrollTop + this.clientHeight;
-    },
-    pagesRenderList() {
-      return this.pages.map(page => page.isRendered);
     }
   },
   watch: {
     scale(newVal, oldVal) {
-      this.pages.forEach(page => {
-        page.scale = newVal;
-      });
-    },
-    pagesRenderList(newVal, oldVal) {
-      // console.log("watch", newVal);
+      if (this.currentPage) {
+        this.currentPage.scale = newVal;
+      }
     },
     focusPageNum(newVal, oldVal) {
-      this.setCurrentPage(newVal);
+      this.renderCurrentPage();
     }
   },
   mounted() {
     this.generateBlankPages(this.url);
+  },
+  beforeDestroy() {
+    // 清理当前页面组件
+    if (this.currentPage) {
+      this.currentPage.vm.$destroy();
+      this.currentPage = null;
+    }
   },
   methods: {
     // pageWidthScale() {
@@ -118,11 +95,11 @@ export default {
     //   const scale = this.pageWidthScale()
     // },
     updatePageGeom() {
-      this.pages.forEach(page => {
-        page.scrollTop = this.scrollTop;
-        page.scrollBottom = this.scrollBottom;
-        page.clientHeight = this.clientHeight;
-      });
+      if (this.currentPage) {
+        this.currentPage.scrollTop = this.scrollTop;
+        this.currentPage.scrollBottom = this.scrollBottom;
+        this.currentPage.clientHeight = this.clientHeight;
+      }
     },
     updateScrollBounds() {
       const { clientHeight } = this.$el;
@@ -131,38 +108,57 @@ export default {
       // console.log({scrollTop: this.scrollTop, clientHeight})
       this.updatePageGeom();
     },
-    // 生成空白的PDF页面
+    // 初始化PDF文档
     async generateBlankPages(url) {
       this.PDFDoc = await PDFJS.getDocument(url);
       this.PDFPages = await getAllPDFPages(this.PDFDoc);
-
-      let viewer = this.$refs["viewer"];
-      range(1, this.pageSize + 1).forEach(index => {
+      
+      // 渲染第一页
+      this.renderCurrentPage();
+    },
+    
+    // 渲染当前页面
+    renderCurrentPage() {
+      if (!this.PDFPages.length) return;
+      
+      // 清除当前页面
+      if (this.currentPage) {
+        this.currentPage.vm.$destroy();
+        this.$refs["viewer"].innerHTML = '';
+      }
+      
+      // 创建新的当前页面
+      const pageIndex = this.focusPageNum - 1;
+      if (pageIndex >= 0 && pageIndex < this.PDFPages.length) {
         const page = new PageConstructor({
           propsData: {
-            // 只用于 new 创建的实例中
-            page: this.PDFPages[index - 1],
+            page: this.PDFPages[pageIndex],
             focusPageNum: this.focusPageNum,
-            num: index,
+            num: this.focusPageNum,
             scale: this.scale
           }
         });
-        page.id = `page_${this.seed++}`;
-        page.vm = page.$mount(); // 手动地挂载; 额外添加vm属性
-        page.scrollTop = this.scrollTop;
-        page.scrollBottom = this.scrollBottom;
+        page.vm = page.$mount();
+        page.scrollTop = 0;
+        page.scrollBottom = this.clientHeight;
         page.clientHeight = this.clientHeight;
-        viewer.appendChild(page.vm.$el);
-        this.pages.push(page);
-      });
+        this.$refs["viewer"].appendChild(page.vm.$el);
+        this.currentPage = page;
+        
+        // 强制渲染页面
+        this.$nextTick(() => {
+          if (page.renderPage) {
+            page.renderPage();
+          }
+        });
+      }
     },
     async renderPDF(url) {
       this.PDFDoc = await PDFJS.getDocument(url);
     },
     setCurrentPage(pageNum) {
       if (pageNum < 1 || pageNum > this.pageSize) return;
-      const pageIndex = pageNum - 1;
-      this.$refs["viewer"].scrollTop = this.pages[pageIndex].pageTop;
+      this.focusPageNum = pageNum;
     },
     onPrevPage() {
       if (this.focusPageNum <= 1) return; // 已经到顶
