@@ -42,7 +42,10 @@
       "plugin:vue/essential",
       "eslint:recommended"
     ],
-    "rules": {},
+    "rules": {
+       "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "off"
+    },
     "parserOptions": {
       "parser": "babel-eslint"
     }
