@@ -18,8 +18,7 @@ import scroll from "../directives/scroll";
 import PageComponent from "./extend"; // PageComponent是一个包含「组件选项」的对象
 const PageConstructor = Vue.extend(PageComponent); // 使用「基础 Vue 构造器」创建一个"子类"（可以用于实例化）
 
-const PIXEL_RATIO = window.devicePixelRatio || 1,
-  VIEWPORT_RATIO = 0.98;
+const DEFAULT_SCALE = 1; // 降低默认缩放比例，避免页面过大
 
 // 返回一个有序的数组
 function getAllPDFPages(PDFDoc) {
@@ -46,7 +45,7 @@ export default {
       PDFDoc: undefined,
       PDFPages: [],
       focusPageNum: 1,
-      scale: 1.0,
+      scale: DEFAULT_SCALE,
       increment: 0.25,
       currentPage: null, // 当前显示的页面组件
       scrollTop: 0, // 已经滚动的距离
