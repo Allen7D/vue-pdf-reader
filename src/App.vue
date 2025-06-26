@@ -14,7 +14,7 @@
         <button @click="handleZoomOut">缩小</button>
       </p>
     </div>
-      <pdf-reader ref="pdf" :url="url" :page-size.sync="pageSize" auto-size style="height: 100%; overflow:hidden;"/>
+    <pdf-reader ref="pdf" :url="url" :page-size.sync="pageSize" auto-size style="height: 100%; overflow:hidden;"/>
   </div>
 </template>
 
@@ -30,7 +30,9 @@ export default {
     return {
       pageNum: 1,
       pageSize: 14,
-      url: "http://localhost:5020/api/pdf"
+      url: 'http://192.168.0.101:8080/001%20At%20the%20park.pdf',
+      // url: 'http://192.168.0.101:8080/example.pdf'
+      // url: "http://localhost:5020/api/pdf"
       // url: 'https://cdn.filestackcontent.com/wcrjf9qPTCKXV3hMXDwK'
     };
   },
