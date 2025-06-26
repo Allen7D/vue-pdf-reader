@@ -57,6 +57,18 @@ export default {
     url: {
       type: String,
       required: true
+    },
+    singlePageMode: {
+      type: Boolean,
+      default: false
+    },
+    currentPage: {
+      type: Number,
+      default: 1
+    },
+    scale: {
+      type: Number,
+      default: 1.0
     }
   },
   data() {
@@ -64,20 +76,19 @@ export default {
       PDFDoc: undefined,
       PDFPages: [],
       focusPageNum: 1,
-      scale: 1.0,
       increment: 0.25,
       pages: [],
       scrollTop: 0, // 已经滚动的距离
-      clientHeight: 0 // 当前页面高度
+      clientHeight: 0, // 当前页面高度
+      pageSize: 0 // PDF总页数
     };
   },
   computed: {
-    // defaultViewport() {
-    //   if (!this.pages.length) return {width: 0, height:0}
-    //   const [page] = this.pages
-    //   console.log(page)
-    //   return page.getViewport(1.0)
-    // },
+    defaultViewport() {
+      if (!this.PDFPages.length) return {width: 0, height: 0};
+      const [page] = this.PDFPages;
+      return page.getViewport(1.0);
+    },
     pageSize() {
       const _pageSize = this.PDFDoc ? this.PDFDoc._pdfInfo.numPages : 0;
       this.$emit("page-size", _pageSize);
@@ -88,6 +99,13 @@ export default {
     },
     pagesRenderList() {
       return this.pages.map(page => page.isRendered);
+    },
+    // 计算自适应宽度的缩放比例
+    fitWidthScale() {
+      const { defaultViewport, $el } = this;
+      if (!defaultViewport.width || !$el) return 1.0;
+      const containerWidth = $el.clientWidth;
+      return (containerWidth * VIEWPORT_RATIO) / defaultViewport.width;
     }
   },
   watch: {
@@ -101,22 +119,49 @@ export default {
     },
     focusPageNum(newVal, oldVal) {
       this.setCurrentPage(newVal);
+    },
+    currentPage(newVal, oldVal) {
+      if (this.singlePageMode && newVal !== oldVal) {
+        this.updateCurrentPage()
+      }
     }
   },
   mounted() {
     this.generateBlankPages(this.url);
+    // 监听窗口大小变化，自适应宽度
+    this.handleResize = () => {
+      this.fitToWidth();
+    };
+    window.addEventListener('resize', this.handleResize);
+  },
+  beforeDestroy() {
+    if (this.handleResize) {
+      window.removeEventListener('resize', this.handleResize);
+    }
   },
   methods: {
-    // pageWidthScale() {
-    //   const {defaultViewport, $el} = this
-    //   if (!defaultViewport.width) return 0
-    //   console.log('($el.clientWidth * PIXEL_RATIO) * VIEWPORT_RATIO / defaultViewport.width', ($el.clientWidth * PIXEL_RATIO) * VIEWPORT_RATIO / defaultViewport.width)
-    //   return ($el.clientWidth * PIXEL_RATIO) * VIEWPORT_RATIO / defaultViewport.width
-    //
-    // },
-    // fitWidth() {
-    //   const scale = this.pageWidthScale()
-    // },
+    // 自适应页面宽度
+    fitToWidth() {
+      const { defaultViewport, $el } = this;
+      const containerWidth = $el ? $el.clientWidth : 0;
+      const defaultViewportWidth = defaultViewport.width;
+      const calculatedScale = this.fitWidthScale;
+      const currentScale = this.scale;
+      
+      console.log('PDF渲染完成后自适应宽度:', {
+        containerWidth,
+        defaultViewportWidth,
+        calculatedScale,
+        currentScale
+      });
+      
+      if (calculatedScale && calculatedScale !== currentScale && calculatedScale > 0) {
+        this.$emit('update:scale', calculatedScale);
+        this.pages.forEach(page => {
+          page.scale = calculatedScale;
+        });
+      }
+    },
     updatePageGeom() {
       this.pages.forEach(page => {
         page.scrollTop = this.scrollTop;
@@ -133,10 +178,27 @@ export default {
     },
     // 生成空白的PDF页面
     async generateBlankPages(url) {
-      this.PDFDoc = await PDFJS.getDocument(url);
-      this.PDFPages = await getAllPDFPages(this.PDFDoc);
-
+       this.PDFDoc = await PDFJS.getDocument(url);
+       this.pageSize = this.PDFDoc.numPages;
+       this.$emit('update:pageSize', this.pageSize);
+       
+       if (this.singlePageMode) {
+         const page = await this.PDFDoc.getPage(this.currentPage);
+         this.PDFPages = [page];
+         await this.renderSinglePage();
+       } else {
+         this.PDFPages = await getAllPDFPages(this.PDFDoc);
+         await this.renderAllPages();
+       }
+       
+       // PDF渲染完成后自适应宽度
+       this.fitToWidth();
+     },
+    async renderAllPages() {
       let viewer = this.$refs["viewer"];
+      const pages = [];
+      
+      // 创建所有页面组件
       range(1, this.pageSize + 1).forEach(index => {
         const page = new PageConstructor({
           propsData: {
@@ -154,8 +216,62 @@ export default {
         page.clientHeight = this.clientHeight;
         viewer.appendChild(page.vm.$el);
         this.pages.push(page);
+        pages.push(page);
       });
+      
+      // 等待DOM更新完成
+      await this.$nextTick();
+      
+      // 收集所有渲染任务
+      const renderPromises = [];
+      pages.forEach(page => {
+        const renderTask = page.vm.renderContext();
+        if (renderTask && renderTask.promise) {
+          renderPromises.push(renderTask.promise);
+        }
+      });
+      
+      // 等待所有页面渲染完成
+      await Promise.all(renderPromises);
     },
+    async renderSinglePage() {
+      let viewer = this.$refs["viewer"];
+      // 清空现有页面
+      viewer.innerHTML = '';
+      this.pages = [];
+      
+      const page = new PageConstructor({
+        propsData: {
+          page: this.PDFPages[0],
+          focusPageNum: this.focusPageNum,
+          num: this.currentPage,
+          scale: this.scale
+        }
+      });
+      page.id = `page_${this.seed++}`;
+      page.vm = page.$mount();
+      page.scrollTop = this.scrollTop;
+      page.scrollBottom = this.scrollBottom;
+      page.clientHeight = this.clientHeight;
+      viewer.appendChild(page.vm.$el);
+      this.pages.push(page);
+      
+      // 等待页面渲染完成
+      await this.$nextTick();
+      const renderTask = page.vm.renderContext();
+      if (renderTask && renderTask.promise) {
+        await renderTask.promise;
+      }
+    },
+    async updateCurrentPage() {
+       if (this.singlePageMode && this.PDFDoc && this.currentPage >= 1 && this.currentPage <= this.pageSize) {
+         const page = await this.PDFDoc.getPage(this.currentPage);
+         this.PDFPages = [page];
+         await this.renderSinglePage();
+         // 页面渲染完成后自适应宽度
+         this.fitToWidth();
+       }
+     },
     async renderPDF(url) {
       this.PDFDoc = await PDFJS.getDocument(url);
     },
@@ -180,6 +296,10 @@ export default {
       if (this.scale <= 0.25) return;
       this.scale -= this.increment;
       this.updatePageGeom();
+    },
+    // 公开方法：手动触发自适应宽度
+    fitWidth() {
+      this.fitToWidth();
     }
   }
 };
@@ -358,7 +478,6 @@ export default {
   margin: 1px auto -8px auto;
   position: relative;
   overflow: visible;
-  border: 9px solid transparent;
   background-clip: content-box;
   background-color: white;
 }

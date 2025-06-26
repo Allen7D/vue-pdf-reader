@@ -33,13 +33,13 @@ export default {
   beforeDestory() {},
   computed: {
     canvasWrapper() {
-      return this.$el.querySelector(".canvasWrapper");
+      return this.$el ? this.$el.querySelector(".canvasWrapper") : null;
     },
     canvas() {
-      return this.$el.querySelector("canvas");
+      return this.$el ? this.$el.querySelector("canvas") : null;
     },
     textLayer() {
-      return this.$el.querySelector(".textLayer");
+      return this.$el ? this.$el.querySelector(".textLayer") : null;
     },
     viewport() {
       return this.page.getViewport(this.scale);
@@ -81,8 +81,11 @@ export default {
      * 渲染Canvas：在网页上将PDF对应的页面逐一画出
      */
     renderContext() {
-      let canvas = this.$refs["canvas"],
-        canvasContext = this.canvas.getContext("2d");
+      let canvas = this.$refs["canvas"];
+      const canvasElement = this.canvas;
+      if (!canvasElement) return;
+      
+      let canvasContext = canvasElement.getContext("2d");
       const viewport = this.page.getViewport(this.scale);
       // 放缩 scale的比例与 viewport.height & viewport.width一致
       canvas.height = viewport.height;
@@ -99,6 +102,8 @@ export default {
      */
     renderTextLayer() {
       const container = this.textLayer;
+      if (!container) return;
+      
       container.innerHTML = "";
       const viewport = this.page.getViewport(this.scale);
       this.page.getTextContent().then(textContent => {
@@ -117,11 +122,8 @@ export default {
 <style scoped>
 .page {
   overflow: visible;
-
   position: relative;
-
   margin: 10px auto;
-
   background-color: black;
   background-clip: content-box;
 }
