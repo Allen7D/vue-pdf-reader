@@ -5,11 +5,11 @@
         <input type="text" v-model="pageNum">
         <span> / {{ this.pageSize }}</span>
       </p> -->
-      <p
+      <!-- <p
         style="display: flex; flex-direction: row;  justify-content: space-between; padding-left: 30px; padding-right: 30px;">
         <button @click="handlePrevPage">上一页</button>
         <button @click="handleNextPage">下一页</button>
-      </p>
+      </p> -->
       <!-- <p>
         <button @click="handleZoomIn">放大</button>
         <button @click="handleZoomOut">缩小</button>
@@ -26,6 +26,11 @@ export default {
   name: "app",
   components: {
     PdfReader
+  },
+  mounted() {
+    // 将翻页方法挂载到 window 对象，供 WebView 调用
+    window.handlePrevPage = this.handlePrevPage;
+    window.handleNextPage = this.handleNextPage;
   },
   data() {
     return {
