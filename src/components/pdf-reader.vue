@@ -114,6 +114,11 @@ export default {
 
       // 渲染第一页
       this.renderCurrentPage();
+
+      // 通知 React Native 端 PDF 加载完成和总页数
+      if (window.ReactNativeWebView) {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'onLoad', totalPages: this.pageSize }));
+      }
     },
 
     // 渲染当前页面
