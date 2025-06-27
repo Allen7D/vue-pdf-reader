@@ -1,6 +1,5 @@
 <template>
-  <div class="page" :style="pageStyle"
-       :id="`pageContainer${num}`" :data-page-number="num" data-loade="false">
+  <div class="page" :style="pageStyle" :id="`pageContainer${num}`" :data-page-number="num" data-loade="false">
     <div :style="canvasWrapperStyle" class="canvasWrapper">
       <canvas :id="`page${num}`" ref="canvas"></canvas>
     </div>
@@ -30,8 +29,13 @@ export default {
       default: 1.0
     }
   },
-  beforeDestory() {},
+  beforeDestory() { },
   computed: {
+    containerWidth() {
+      return document.getElementById("viewerContainer").clientWidth
+        ? document.getElementById("viewerContainer").clientWidth
+        : null;
+    },
     canvasWrapper() {
       return this.$el.querySelector(".canvasWrapper");
     },
@@ -42,7 +46,8 @@ export default {
       return this.$el.querySelector(".textLayer");
     },
     viewport() {
-      return this.page.getViewport(this.scale);
+      const scale = (this.containerWidth - 20) / this.page.view[2]
+      return this.page.getViewport(scale);
     },
     eleId() {
       return `pageContainer${this._uid}`;
@@ -71,22 +76,21 @@ export default {
     renderContext() {
       let canvas = this.$refs["canvas"],
         canvasContext = this.canvas.getContext("2d");
-      const viewport = this.page.getViewport(this.scale);
-      
+      const scale = (this.containerWidth - 20) / this.page.view[2]
+      const viewport = this.page.getViewport(scale);
       // 获取设备像素比，提高清晰度
       const pixelRatio = Math.min((window.devicePixelRatio || 1) * 10, 10); // 限制最大像素比为10，避免过度消耗内存
-      
+
       // 设置canvas的实际像素尺寸（高分辨率）
       canvas.height = viewport.height * pixelRatio;
       canvas.width = viewport.width * pixelRatio;
-      
       // 设置canvas的显示尺寸（CSS尺寸），保持在容器内
       canvas.style.height = viewport.height + 'px';
       canvas.style.width = viewport.width + 'px';
-      
+
       // 缩放绘图上下文以匹配设备像素比
       canvasContext.scale(pixelRatio, pixelRatio);
-      
+
       const renderContext = {
         canvasContext,
         viewport,
@@ -100,12 +104,12 @@ export default {
     renderTextLayer() {
       const container = this.textLayer;
       container.innerHTML = "";
-      const viewport = this.page.getViewport(this.scale);
-      
+      const scale = (this.containerWidth - 20) / this.page.view[2]
+      const viewport = this.page.getViewport(scale);
       // 设置文本层的尺寸以匹配canvas显示尺寸，保持在容器内
       container.style.width = viewport.width + 'px';
       container.style.height = viewport.height + 'px';
-      
+
       this.page.getTextContent().then(textContent => {
         PDFJS.renderTextLayer({
           textContent,

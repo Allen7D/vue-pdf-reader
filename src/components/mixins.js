@@ -9,7 +9,7 @@ export default {
   },
   data() {
     return {
-      defaultWidth: 612,
+      defaultWidth: 1,
       defaultScale: 1.0
     };
   },
@@ -21,10 +21,9 @@ export default {
     }
   },
   mounted() {
+    this.defaultWidth = document.getElementById("viewerContainer").clientWidth;
     if (this.containerWidth && this.autoSize) {
-      this.scale =
-        this.defaultScale *
-        ((this.containerWidth - 40) / this.defaultWidth).toFixed(2);
+      this.scale = this.defaultScale;
       window.addEventListener("resize", debounce(this.resizePdf, 100));
     }
   },
@@ -36,8 +35,7 @@ export default {
       const currentwidth = document.getElementById("viewerContainer")
         .clientWidth;
       this.scale =
-        this.defaultScale *
-        ((currentwidth - 40) / this.defaultWidth).toFixed(2);
+        this.defaultScale * (currentwidth / this.defaultWidth).toFixed(2);
     }
   }
 };

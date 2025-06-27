@@ -1,7 +1,6 @@
 <template>
-  <div id="viewerContainer" class="container" >
-    <div class="pdfViewer" id="viewer"
-         ref="viewer" v-scroll.immediate="updateScrollBounds">
+  <div id="viewerContainer" class="container">
+    <div class="pdfViewer" id="viewer" ref="viewer" v-scroll.immediate="updateScrollBounds">
     </div>
   </div>
 </template>
@@ -19,11 +18,12 @@ import PageComponent from "./extend"; // PageComponent是一个包含「组件�
 const PageConstructor = Vue.extend(PageComponent); // 使用「基础 Vue 构造器」创建一个"子类"（可以用于实例化）
 
 const DEFAULT_SCALE = 1; // 降低默认缩放比例，避免页面过大
+const VIEWPORT_RATIO = 0.98;
 
 // 返回一个有序的数组
 function getAllPDFPages(PDFDoc) {
   const pageSize = PDFDoc._pdfInfo.numPages;
-  const allPages = Array.from({length: pageSize}, (_, i) => PDFDoc.getPage(i + 1));
+  const allPages = Array.from({ length: pageSize }, (_, i) => PDFDoc.getPage(i + 1));
   return Promise.all(allPages);
 }
 
@@ -111,21 +111,21 @@ export default {
     async generateBlankPages(url) {
       this.PDFDoc = await PDFJS.getDocument(url);
       this.PDFPages = await getAllPDFPages(this.PDFDoc);
-      
+
       // 渲染第一页
       this.renderCurrentPage();
     },
-    
+
     // 渲染当前页面
     renderCurrentPage() {
       if (!this.PDFPages.length) return;
-      
+
       // 清除当前页面
       if (this.currentPage) {
         this.currentPage.vm.$destroy();
         this.$refs["viewer"].innerHTML = '';
       }
-      
+
       // 创建新的当前页面
       const pageIndex = this.focusPageNum - 1;
       if (pageIndex >= 0 && pageIndex < this.PDFPages.length) {
@@ -143,7 +143,7 @@ export default {
         page.clientHeight = this.clientHeight;
         this.$refs["viewer"].appendChild(page.vm.$el);
         this.currentPage = page;
-        
+
         // 强制渲染页面
         this.$nextTick(() => {
           if (page.renderPage) {
@@ -216,7 +216,7 @@ export default {
   line-height: 1;
 }
 
-.textLayer > div {
+.textLayer>div {
   color: transparent;
   position: absolute;
   white-space: pre;
@@ -255,6 +255,7 @@ export default {
 .textLayer ::selection {
   background: rgb(0, 0, 255);
 }
+
 .textLayer ::-moz-selection {
   background: rgb(0, 0, 255);
 }
@@ -281,7 +282,7 @@ export default {
   position: absolute;
 }
 
-.annotationLayer .linkAnnotation > a {
+.annotationLayer .linkAnnotation>a {
   position: absolute;
   font-size: 1em;
   top: 0;
@@ -290,12 +291,14 @@ export default {
   height: 100%;
 }
 
-.annotationLayer .linkAnnotation > a /* -ms-a */ {
-  background: url("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7")
-    0 0 repeat;
+.annotationLayer .linkAnnotation>a
+
+/* -ms-a */
+  {
+  background: url("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7") 0 0 repeat;
 }
 
-.annotationLayer .linkAnnotation > a:hover {
+.annotationLayer .linkAnnotation>a:hover {
   opacity: 0.2;
   background: #ff0;
   box-shadow: 0px 2px 10px #ff0;
