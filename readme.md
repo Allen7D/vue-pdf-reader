@@ -70,5 +70,6 @@ $ npm run build // Compiles and minifies for production
 - [Online Deme of PDF.js](https://mozilla.github.io/pdf.js/web/viewer.html) ---- Rendering PDF as canvas in web
 - [[十分鐘學習] PDF.js - HTML5 X PDF 聯名](https://ithelp.ithome.com.tw/articles/10195460)  ---- A tutorial of PDF.js with A example.
 - [vue-pdfjs-demo](https://github.com/rossta/vue-pdfjs-demo/tree/master) ---- A excellent project offered as Vue component for rendering PDF
+- [React-pdf 实现 PDF 文件在线预览](https://juejin.cn/post/7104670642892439588?searchId=20250607200647FB60B10122151E971B92)
 
 
