@@ -201,8 +201,7 @@ export default {
   left: 0;
   right: 0;
   width: 100%;
-
-  background: #525f69;
+  /* background: #525f69; */
 }
 
 .textLayer {

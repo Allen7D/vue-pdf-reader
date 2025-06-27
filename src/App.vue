@@ -27,6 +27,16 @@ export default {
   components: {
     PdfReader
   },
+  created() {
+    // 从 URL 查询参数中获取 PDF 地址
+    const params = new URLSearchParams(window.location.search);
+    const pdfUrl = params.get('url');
+    if (pdfUrl) {
+      this.url = decodeURIComponent(pdfUrl);
+    } else {
+      alert('没有获取到书本地址');
+    }
+  },
   mounted() {
     // 将翻页方法挂载到 window 对象，供 WebView 调用
     window.handlePrevPage = this.handlePrevPage;
@@ -36,10 +46,7 @@ export default {
     return {
       pageNum: 1,
       pageSize: 1,
-      // url: 'http://10.10.164.211:8080/001%20At%20the%20park.pdf',
-      url: 'http://10.10.164.211:8080/example.pdf',
-      // url: "http://localhost:5020/api/pdf"
-      // url: 'https://cdn.filestackcontent.com/wcrjf9qPTCKXV3hMXDwK'
+      url: '', // Default to empty
     };
   },
   watch: {
