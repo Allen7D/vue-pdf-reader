@@ -12,6 +12,11 @@ $ npm install
 $ npm run serve // Compiles and hot-reloads for development
 //
 $ npm run build // Compiles and minifies for production
+
+// Node.js version compatibility issue.
+// We need to use the `legacy OpenSSL provider` to solve this problem.
+
+$ node --openssl-legacy-provider node_modules/.bin/vue-cli-service serve
 ```
 
 ### Document
